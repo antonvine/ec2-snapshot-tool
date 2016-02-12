@@ -1,0 +1,15 @@
+config = {
+    # Log file location
+    'log_file': '/tmp/ec2_snapshot.log',
+
+    # AWS credentials for the IAM user (alternatively can be set up as environment variables)
+    'aws_access_key': 'xxxxxxxx',
+    'aws_secret_key': 'xxxxxxxxxxxxx',
+
+    # EC2 info about your server's region
+    'ec2_region': 'us-west-1',
+    'backup_region': 'us-east-1',
+
+    # How many snapshots to keep
+    'keep': 14
+}

@@ -1,0 +1,24 @@
+{
+  "Statement": [
+	{
+	  "Sid": "Stmtxxxxxxxxxxxxxx",
+	  "Action": [
+		"ec2:CreateSnapshot",
+                "ec2:CopySnapshot",
+		"ec2:CreateTags",
+		"ec2:DeleteSnapshot",
+                "ec2:DescribeInstances",
+		"ec2:DescribeSnapshots",
+                "ec2:DescribeRegions",
+		"ec2:DescribeTags",
+		"ec2:DescribeVolumeAttribute",
+		"ec2:DescribeVolumeStatus",
+		"ec2:DescribeVolumes"
+	  ],
+	  "Effect": "Allow",
+	  "Resource": [
+		"*"
+	  ]
+	}
+  ]
+}
