@@ -107,6 +107,7 @@ def create_snapshot(volume):
             logging.error('    Unable to create tags for snapshot %s.', vol_snapshot['SnapshotId'])
     except:
         logging.error('    Unable to create snapshot of volume %s', volume)
+        logging.error('Exception: ', sys.exc_info()[0])
 
 # Purge volume old snapshots in specific region
 def purge_snapshot(volume, keep, region):
@@ -126,6 +127,7 @@ def purge_snapshot(volume, keep, region):
             logging.info('    Snapshot %s purged successfully.', sorted_vol_snapshots[i]['SnapshotId'])
         except:
             logging.error('    Unable to purge snapshot %s. Please check your IAM credentials.', sorted_vol_snapshots[i]['SnapshotId'])
+            logging.error(' Exception: ', sys.exc_info()[0])
 
 # Copy volume snapshots from one region to another
 def copy_snapshot(volume, src, dst):
@@ -165,6 +167,7 @@ def copy_snapshot(volume, src, dst):
             logging.error('    Unable to create tags for snapshot %s', dst_snapshot['SnapshotId'])
     except:
         logging.error('    Unable to copy snapshot %s from %s to %s. Please check your IAM credentials.', snap_to_copy, src, dst)
+        logging.error('Exception: ', sys.exc_info()[0])
 
 
 if __name__ == '__main__':
