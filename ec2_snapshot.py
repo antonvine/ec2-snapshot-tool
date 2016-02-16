@@ -147,6 +147,7 @@ def copy_snapshot(volume, src, dst):
         logging.info('    Copying snapshot %s from %s to %s...', snap_to_copy, src, dst)
         dst_snapshot = dst_client.copy_snapshot(
             SourceRegion=src,
+            DestinationRegion=dst,
             SourceSnapshotId=snap_to_copy,
             Description=description
         )
