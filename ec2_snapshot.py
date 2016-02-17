@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import boto3
+import botocore
 import os, sys
 import requests
 import argparse
@@ -105,9 +106,9 @@ def create_snapshot(volume):
             logging.info('      Name tag for snapshot %s created successfully.', vol_snapshot['SnapshotId'])
         except:
             logging.error('    Unable to create tags for snapshot %s.', vol_snapshot['SnapshotId'])
-    except:
+    except botocore.exceptions.ClientError as e:
         logging.error('    Unable to create snapshot of volume %s', volume)
-        logging.error('Exception: ', sys.exc_info()[0])
+        logging.error('Exception: %s', e)
 
 # Purge volume old snapshots in specific region
 def purge_snapshot(volume, keep, region):
@@ -125,9 +126,9 @@ def purge_snapshot(volume, keep, region):
                 SnapshotId=sorted_vol_snapshots[i]['SnapshotId']
             )
             logging.info('    Snapshot %s purged successfully.', sorted_vol_snapshots[i]['SnapshotId'])
-        except:
+        except botocore.exceptions.ClientError as e:
             logging.error('    Unable to purge snapshot %s. Please check your IAM credentials.', sorted_vol_snapshots[i]['SnapshotId'])
-            logging.error(' Exception: ', sys.exc_info()[0])
+            logging.error(' Exception: %s', e)
 
 # Copy volume snapshots from one region to another
 def copy_snapshot(volume, src, dst):
@@ -165,9 +166,9 @@ def copy_snapshot(volume, src, dst):
             logging.info('    Tags for snapshot %s created successfully.', dst_snapshot['SnapshotId'])
         except:
             logging.error('    Unable to create tags for snapshot %s', dst_snapshot['SnapshotId'])
-    except:
+    except botocore.exceptions.ClientError as e:
         logging.error('    Unable to copy snapshot %s from %s to %s. Please check your IAM credentials.', snap_to_copy, src, dst)
-        logging.error('Exception: ', sys.exc_info()[0])
+        logging.error('Exception: %s', e)
 
 
 if __name__ == '__main__':
