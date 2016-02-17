@@ -14,6 +14,7 @@ from config import config
 aws_access_key = config['aws_access_key']
 aws_secret_key = config['aws_secret_key']
 ec2_region = config['ec2_region']
+time_interval = config['time_interval']
 
 # Setup logging
 logging.basicConfig(filename=config['log_file'], level=logging.INFO, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %H:%M:%S')
@@ -132,6 +133,9 @@ def purge_snapshot(volume, keep, region):
 
 # Copy volume snapshots from one region to another
 def copy_snapshot(volume, src, dst):
+    attempt_succeeded = False
+    attempt_count = 0
+
     logging.info('    Looking for volume %s snapshots...', volume)
     vol_snapshots = get_volume_snapshots(volume)
     # Get last volume snapshot
@@ -144,31 +148,36 @@ def copy_snapshot(volume, src, dst):
         'volume': volume,
         'date': datetime.today().strftime('%d-%m-%Y')
     }
-    try:
-        # In order to copy snapshot we need to create connection to destination first
-        dst_client = ec2_connect(ec2_region=dst)
-        logging.info('    Copying snapshot %s from %s to %s...', snap_to_copy, src, dst)
-        dst_snapshot = dst_client.copy_snapshot(
-            SourceRegion=src,
-            DestinationRegion=dst,
-            SourceSnapshotId=snap_to_copy,
-            Description=description
-        )
-        logging.info('    Snapshot %s created successfully.', dst_snapshot['SnapshotId'])
+    # Try copy snapshot several times
+    while attempt_count < 5 and not attempt_succeeded:
         try:
-            logging.info('    Creating tags for snapshot %s.', dst_snapshot['SnapshotId'])
-            dst_client.create_tags(
-                Resources=[dst_snapshot['SnapshotId']],
-                Tags=[{
-                    'Key': 'Name',
-                    'Value': volume
-            }])
-            logging.info('    Tags for snapshot %s created successfully.', dst_snapshot['SnapshotId'])
-        except:
-            logging.error('    Unable to create tags for snapshot %s', dst_snapshot['SnapshotId'])
-    except botocore.exceptions.ClientError as e:
-        logging.error('    Unable to copy snapshot %s from %s to %s. Please check your IAM credentials.', snap_to_copy, src, dst)
-        logging.error('Exception: %s', e)
+            # In order to copy snapshot we need to create connection to destination first
+            dst_client = ec2_connect(ec2_region=dst)
+            logging.info('    Copying snapshot %s from %s to %s...', snap_to_copy, src, dst)
+            dst_snapshot = dst_client.copy_snapshot(
+                SourceRegion=src,
+                DestinationRegion=dst,
+                SourceSnapshotId=snap_to_copy,
+                Description=description
+            )
+            logging.info('    Snapshot %s created successfully.', dst_snapshot['SnapshotId'])
+            attempt_succeeded = True
+            try:
+                logging.info('    Creating tags for snapshot %s.', dst_snapshot['SnapshotId'])
+                dst_client.create_tags(
+                    Resources=[dst_snapshot['SnapshotId']],
+                    Tags=[{
+                        'Key': 'Name',
+                        'Value': volume
+                }])
+                logging.info('    Tags for snapshot %s created successfully.', dst_snapshot['SnapshotId'])
+            except:
+                logging.error('    Unable to create tags for snapshot %s', dst_snapshot['SnapshotId'])
+        except botocore.exceptions.ClientError as e:
+            logging.error('    Unable to copy snapshot %s from %s to %s. Please check your IAM credentials.', snap_to_copy, src, dst)
+            logging.error('Exception: %s', e)
+            time.sleep(wait_interval)
+            attempt_count += 1
 
 
 if __name__ == '__main__':
