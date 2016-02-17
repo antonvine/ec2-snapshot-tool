@@ -13,6 +13,6 @@ config = {
     # How many snapshots to keep
     'keep': 14,
 
-    # Time interval for snapshot copy (AWS has limitation of 5 snapshot copies at the same time)
-    'time_interval': 20
+    # Wait interval for snapshot copy (AWS has limitation of 5 snapshot copies at the same time)
+    'wait_interval': 20
 }

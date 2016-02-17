@@ -8,13 +8,14 @@ import requests
 import argparse
 import logging
 import six
+import time
 from datetime import datetime
 from config import config
 
 aws_access_key = config['aws_access_key']
 aws_secret_key = config['aws_secret_key']
 ec2_region = config['ec2_region']
-time_interval = config['time_interval']
+wait_interval = config['wait_interval']
 
 # Setup logging
 logging.basicConfig(filename=config['log_file'], level=logging.INFO, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %H:%M:%S')
