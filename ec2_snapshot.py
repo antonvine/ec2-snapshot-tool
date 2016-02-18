@@ -135,7 +135,6 @@ def purge_snapshot(volume, keep, region):
 # Copy volume snapshots from one region to another
 def copy_snapshot(volume, src, dst):
     attempt_succeeded = False
-    attempt_count = 0
 
     logging.info('    Looking for volume %s snapshots...', volume)
     vol_snapshots = get_volume_snapshots(volume)
@@ -150,7 +149,7 @@ def copy_snapshot(volume, src, dst):
         'date': datetime.today().strftime('%d-%m-%Y')
     }
     # Try copy snapshot several times
-    while attempt_count < 5 and not attempt_succeeded:
+    while not attempt_succeeded:
         try:
             # In order to copy snapshot we need to create connection to destination first
             dst_client = ec2_connect(ec2_region=dst)
@@ -178,7 +177,6 @@ def copy_snapshot(volume, src, dst):
             logging.error('    Unable to copy snapshot %s from %s to %s. Please check your IAM credentials.', snap_to_copy, src, dst)
             logging.error('Exception: %s', e)
             time.sleep(wait_interval)
-            attempt_count += 1
 
 
 if __name__ == '__main__':
